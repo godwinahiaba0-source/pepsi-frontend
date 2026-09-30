@@ -397,7 +397,7 @@
       const baseUrl = getApiBaseUrl();
 
       try {
-        const userRes = await fetch(`${baseUrl}/api/devices/my-devices`, {
+        const userRes = await fetch(`https://backend-production-7c73b.up.railway.app/api/devices/my-devices`, {
           headers: { 'Authorization': token ? `Bearer ${token}` : '' }
         });
 
