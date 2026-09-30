@@ -603,15 +603,52 @@
       document.getElementById('startDate').value = formatDateToYYYYMMDD(thirtyDaysAgo);
     }
 
-    function getReferralCode() {
-      try {
-        const userData = JSON.parse(localStorage.getItem('userData'));
-        if (userData && (userData.referralCode || userData.inviteCode || userData.code)) {
-          return userData.referralCode || userData.inviteCode || userData.code;
-        }
-      } catch(e) {}
+    // Live backend fetch for fresh profile and referral code information
+    async function loadUserProfileAndTeam() {
+      const token = localStorage.getItem('token') || localStorage.getItem('userToken');
+      const baseUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://backend-production-7c73b.up.railway.app';
 
-      return localStorage.getItem('userCode') || localStorage.getItem('referralCode') || '------';
+      let refCode = '------';
+
+      try {
+        const response = await fetch(`${baseUrl}/api/auth/me`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          }
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          const user = result.user || result;
+          if (user) {
+            refCode = user.referral_code || user.inviteCode || user.referralCode || user.code || user.username || '------';
+            // Update local storage cache
+            const existingData = JSON.parse(localStorage.getItem('userData')) || {};
+            existingData.referral_code = refCode;
+            localStorage.setItem('userData', JSON.stringify(existingData));
+          }
+        }
+      } catch (err) {
+        console.warn("Could not fetch profile, falling back to local storage.", err);
+      }
+
+      // Fallback to local storage if API call didn't yield a code
+      if (refCode === '------') {
+        try {
+          const userData = JSON.parse(localStorage.getItem('userData'));
+          if (userData) {
+            refCode = userData.referral_code || userData.referralCode || userData.inviteCode || userData.code || userData.username || '------';
+          }
+        } catch(e) {}
+      }
+
+      if (refCode === '------') {
+        refCode = localStorage.getItem('userCode') || localStorage.getItem('referralCode') || '------';
+      }
+
+      renderQRCodeAndLink(refCode);
+      fetchTeamMetrics();
     }
 
     function renderQRCodeAndLink(code) {
@@ -636,16 +673,13 @@
     }
 
     async function fetchTeamMetrics() {
-      const code = getReferralCode();
-      renderQRCodeAndLink(code);
-
       const token = localStorage.getItem('token') || localStorage.getItem('userToken');
       const startDateVal = document.getElementById('startDate').value;
       const endDateVal = document.getElementById('endDate').value;
       const baseUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://backend-production-7c73b.up.railway.app';
 
       try {
-        const response = await fetch(`https://backend-production-7c73b.up.railway.app/api/team/report?startDate=${startDateVal}&endDate=${endDateVal}`, {
+        const response = await fetch(`${baseUrl}/api/team/report?startDate=${startDateVal}&endDate=${endDateVal}`, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': token ? `Bearer ${token}` : ''
@@ -661,7 +695,7 @@
 
         if (response.ok) {
           const data = await response.json();
-          if (data && data.success) {
+          if (data) {
             teamDataCache = data;
             populateMetrics(data);
             return;
@@ -673,12 +707,12 @@
     }
 
     function populateMetrics(data) {
-      document.getElementById('teamRecharge').innerText = parseFloat(data.teamRecharge || 0).toFixed(2);
-      document.getElementById('firstChargeCount').innerText = parseInt(data.firstChargeCount || 0, 10);
-      document.getElementById('teamSize').innerText = parseInt(data.teamSize || 0, 10);
-      document.getElementById('teamWithdraw').innerText = parseFloat(data.teamWithdraw || 0).toFixed(2);
-      document.getElementById('firstPushCount').innerText = parseInt(data.firstPushCount || 0, 10);
-      document.getElementById('newTeamCount').innerText = parseInt(data.newTeamCount || 0, 10);
+      document.getElementById('teamRecharge').innerText = parseFloat(data.teamRecharge || data.team_recharge || 0).toFixed(2);
+      document.getElementById('firstChargeCount').innerText = parseInt(data.firstChargeCount || data.first_charge_count || 0, 10);
+      document.getElementById('teamSize').innerText = parseInt(data.teamSize || data.team_size || 0, 10);
+      document.getElementById('teamWithdraw').innerText = parseFloat(data.teamWithdraw || data.team_withdraw || 0).toFixed(2);
+      document.getElementById('firstPushCount').innerText = parseInt(data.firstPushCount || data.first_push_count || 0, 10);
+      document.getElementById('newTeamCount').innerText = parseInt(data.newTeamCount || data.new_team_count || 0, 10);
 
       renderLevelDetails(currentSelectedLevel);
     }
@@ -691,8 +725,8 @@
       }
 
       const lvlData = teamDataCache.levels[level];
-      document.getElementById('rechargeAmount').innerText = parseFloat(lvlData.rechargeAmount || 0).toFixed(2);
-      document.getElementById('rechargeNumber').innerText = lvlData.rechargeNumber || 0;
+      document.getElementById('rechargeAmount').innerText = parseFloat(lvlData.rechargeAmount || lvlData.recharge_amount || 0).toFixed(2);
+      document.getElementById('rechargeNumber').innerText = lvlData.rechargeNumber || lvlData.recharge_number || 0;
     }
 
     function switchLevel(level, element) {
@@ -725,8 +759,8 @@
     window.addEventListener('DOMContentLoaded', () => {
       try {
         const userData = JSON.parse(localStorage.getItem('userData'));
-        if (userData && (userData.createdAt || userData.registeredAt)) {
-          setupDefaultDateRange(userData.createdAt || userData.registeredAt);
+        if (userData && (userData.createdAt || userData.registeredAt || userData.created_at)) {
+          setupDefaultDateRange(userData.createdAt || userData.registeredAt || userData.created_at);
         } else {
           setupDefaultDateRange(null);
         }
@@ -734,7 +768,7 @@
         setupDefaultDateRange(null);
       }
 
-      fetchTeamMetrics();
+      loadUserProfileAndTeam();
     });
   </script>
 
