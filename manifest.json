@@ -1,0 +1,20 @@
+{
+  "name": "Pepsi",
+  "short_name": "Pepsi",
+  "start_url": "home.html",
+  "display": "standalone",
+  "background_color": "#0047ab",
+  "theme_color": "#0047ab",
+  "icons": [
+    {
+      "src": "pepsi-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "pepsi-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
