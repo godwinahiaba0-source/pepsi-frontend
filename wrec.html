@@ -240,16 +240,18 @@
       if (typeof API_BASE_URL !== 'undefined' && API_BASE_URL) {
         return API_BASE_URL;
       }
-      return (window.location.origin.includes('http') && !window.location.origin.includes('file://'))
-        ? window.location.origin 
-        : 'https://backend-production-7c73b.up.railway.app';
+      const hostname = window.location.hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:5000';
+      }
+      return 'https://backend-production-7c73b.up.railway.app';
     }
 
     // Helper to format any date string or timestamp strictly into YYYYMMDDHHmmss
     function formatYYYYMMDDHHmmss(dateInput) {
       if (!dateInput) return '';
       const d = new Date(dateInput);
-      if (isNaN(d.getTime())) return String(dateInput); // Fallback if invalid
+      if (isNaN(d.getTime())) return String(dateInput);
       
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -290,7 +292,6 @@
         const rawDate = item.created_at || item.createdAt || item.date || item.timestamp;
         const formattedDate = formatYYYYMMDDHHmmss(rawDate);
 
-        // Ensure Order ID uses or displays with YYYYMMDDHHmmss structure if appropriate
         const trxId = item.id || item.transactionId || item.order_id || item.tradeNo || formattedDate || 'N/A';
 
         const card = document.createElement('div');
@@ -315,7 +316,6 @@
       const token = localStorage.getItem('token') || localStorage.getItem('userToken');
       const baseUrl = resolveBaseUrl();
 
-      // Check locally cached user balance first
       try {
         const localUser = JSON.parse(localStorage.getItem('userData') || localStorage.getItem('user') || '{}');
         if (localUser && localUser.balance !== undefined) {
@@ -329,11 +329,12 @@
       }
 
       // Fetch User Balance
-const profileEndpoints = [
-  `https://backend-production-7c73b.up.railway.app/api/user/profile`,
-  `https://backend-production-7c73b.up.railway.app/api/wallet/details`,
-  `https://backend-production-7c73b.up.railway.app/api/user/details`
-];
+      const profileEndpoints = [
+        `https://backend-production-7c73b.up.railway.app/api/user/profile`,
+        `https://backend-production-7c73b.up.railway.app/api/wallet/details`,
+        `https://backend-production-7c73b.up.railway.app/api/user/details`
+      ];
+
       for (const url of profileEndpoints) {
         try {
           const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -350,11 +351,11 @@ const profileEndpoints = [
 
       // Fetch Withdrawal Records
       const recordEndpoints = [
-        `${baseUrl}/api/withdraw/history`,
-        `${baseUrl}/api/withdraw/records`,
-        `${baseUrl}/api/wallet/details`,
-        `${baseUrl}/api/user/withdrawals`,
-        `${baseUrl}/api/user/records`
+        `https://backend-production-7c73b.up.railway.app/api/withdraw/history`,
+        `https://backend-production-7c73b.up.railway.app/api/withdraw/records`,
+        `https://backend-production-7c73b.up.railway.app/api/wallet/details`,
+        `https://backend-production-7c73b.up.railway.app/api/user/withdrawals`,
+        `https://backend-production-7c73b.up.railway.app/api/user/records`
       ];
 
       let recordsFound = null;

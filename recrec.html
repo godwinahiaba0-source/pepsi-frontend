@@ -237,6 +237,17 @@
   <script src="toast.js"></script>
 
   <script>
+    function resolveBaseUrl() {
+      if (typeof API_BASE_URL !== 'undefined' && API_BASE_URL) {
+        return API_BASE_URL;
+      }
+      const hostname = window.location.hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:5000';
+      }
+      return 'https://backend-production-7c73b.up.railway.app';
+    }
+
     // Robust Record Renderer
     function renderRecordsList(containerId, records) {
       if (!records || !Array.isArray(records) || records.length === 0) return;
@@ -288,7 +299,7 @@
     // Fetch Wallet Details & Recharge Records
     async function loadWalletData() {
       const token = localStorage.getItem('userToken') || localStorage.getItem('token');
-      const baseUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://backend-production-7c73b.up.railway.app';
+      const baseUrl = resolveBaseUrl();
 
       // 1. Check LocalStorage fallback first
       const localRecharges = JSON.parse(localStorage.getItem('pendingRecharges') || localStorage.getItem('recharges') || '[]');
@@ -296,50 +307,61 @@
         renderRecordsList('recharge-list', localRecharges);
       }
 
-      // 2. Fetch from Backend
+      // 2. Fetch from Backend Wallet Details
       try {
-  const response = await fetch('https://backend-production-7c73b.up.railway.app/api/wallet/details', {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
-    }
-  });
-
-        if (response.ok) {
-          const data = await response.json();
-
-          if (data.balance !== undefined) {
-            document.getElementById('userWalletBalance').innerText = parseFloat(data.balance).toFixed(2);
-          }
-
-          const records = data.recharges || data.deposits || data.data || [];
-          if (records.length > 0) {
-            renderRecordsList('recharge-list', records);
-            return;
-          }
-        }
-      } catch (err) {
-        console.warn("Wallet API endpoint unavailable, trying direct recharge route...", err);
-      }
-
-      // 3. Alternate Direct Endpoint Fallback
-      try {
-        const altResponse = await fetch('https://backend-production-7c73b.up.railway.app/api/recharges', {
+        const response = await fetch(`https://backend-production-7c73b.up.railway.app/api/wallet/details`, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': token ? `Bearer ${token}` : ''
           }
         });
 
-        if (altResponse.ok) {
-          const altData = await altResponse.json();
-          const records = Array.isArray(altData) ? altData : (altData.recharges || altData.data || []);
+        if (response.ok) {
+          const data = await response.json();
+          const payload = data.data || data;
+
+          if (payload.balance !== undefined) {
+            document.getElementById('userWalletBalance').innerText = parseFloat(payload.balance).toFixed(2);
+          }
+
+          const records = payload.recharges || payload.deposits || [];
           if (records.length > 0) {
             renderRecordsList('recharge-list', records);
+            return;
           }
         }
       } catch (err) {
-        console.warn("All recharge fetch routes offline.", err);
+        console.warn("Wallet API endpoint unavailable, trying direct routes...", err);
+      }
+
+      // 3. Alternate Direct Endpoint Fallback
+      const endpoints = [
+        `https://backend-production-7c73b.up.railway.app/api/recharges`,
+        `https://backend-production-7c73b.up.railway.app/api/wallet/recharges`,
+        `https://backend-production-7c73b.up.railway.app/api/user/recharges`
+      ];
+
+      for (const endpoint of endpoints) {
+        try {
+          const altResponse = await fetch(endpoint, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': token ? `Bearer ${token}` : ''
+            }
+          });
+
+          if (altResponse.ok) {
+            const altData = await altResponse.json();
+            const payload = altData.data || altData;
+            const records = Array.isArray(payload) ? payload : (payload.recharges || payload.deposits || []);
+            if (records.length > 0) {
+              renderRecordsList('recharge-list', records);
+              break;
+            }
+          }
+        } catch (err) {
+          console.warn(`Failed fetch from ${endpoint}:`, err);
+        }
       }
     }
 

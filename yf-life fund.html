@@ -458,6 +458,17 @@
     const revenueDisplay = document.getElementById('revenueDisplay');
     const plansListContainer = document.getElementById('plansList');
 
+    function resolveBaseUrl() {
+      if (typeof API_BASE_URL !== 'undefined' && API_BASE_URL) {
+        return API_BASE_URL;
+      }
+      const hostname = window.location.hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:5000';
+      }
+      return 'https://backend-production-7c73b.up.railway.app';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       const token = localStorage.getItem('userToken') || localStorage.getItem('token');
       if (!token) {
@@ -470,9 +481,9 @@
 
     async function loadFundSummary() {
       const token = localStorage.getItem('userToken') || localStorage.getItem('token');
-      const baseUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://backend-production-7c73b.up.railway.app';
+      const baseUrl = resolveBaseUrl();
       try {
-        const response = await fetch(`${baseUrl}/api/fund/summary`, {
+        const response = await fetch(`https://backend-production-7c73b.up.railway.app/api/fund/summary`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -546,10 +557,10 @@
       container.innerHTML = '<div style="text-align: center; color: #64748b; padding: 20px;">Loading records...</div>';
 
       const token = localStorage.getItem('userToken') || localStorage.getItem('token');
-      const baseUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://backend-production-7c73b.up.railway.app';
+      const baseUrl = resolveBaseUrl();
 
       try {
-        const response = await fetch(`${baseUrl}/api/fund/records`, {
+        const response = await fetch(`https://backend-production-7c73b.up.railway.app/api/fund/records`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -607,11 +618,11 @@
       }
 
       const token = localStorage.getItem('userToken') || localStorage.getItem('token');
-      const baseUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://backend-production-7c73b.up.railway.app';
+      const baseUrl = resolveBaseUrl();
       const expectedProfit = amount * (selectedPlan.profitPercent / 100);
 
       try {
-        const response = await fetch(`${baseUrl}/api/fund/invest`, {
+        const response = await fetch(`https://backend-production-7c73b.up.railway.app/api/fund/invest`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,

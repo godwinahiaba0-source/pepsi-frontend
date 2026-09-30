@@ -293,9 +293,11 @@
       if (typeof API_BASE_URL !== 'undefined' && API_BASE_URL) {
         return API_BASE_URL;
       }
-      return (window.location.origin.includes('http') && !window.location.origin.includes('file://'))
-        ? window.location.origin 
-        : 'https://backend-production-7c73b.up.railway.app';
+      const hostname = window.location.hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:5000';
+      }
+      return 'https://backend-production-7c73b.up.railway.app';
     }
 
     function redirectToBind() {
@@ -366,7 +368,7 @@
       if (token) {
         // 1. Fetch balance
         try {
-          const res = await fetch(`${baseUrl}/api/user/profile`, {
+          const res = await fetch(`https://backend-production-7c73b.up.railway.app/api/user/profile`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (res.ok) {
@@ -380,7 +382,7 @@
 
         // 2. Check for active/pending withdrawal requests to lock form if needed
         try {
-          const statusRes = await fetch(`${baseUrl}/api/withdraw/history`, {
+          const statusRes = await fetch(`https://backend-production-7c73b.up.railway.app/api/withdraw/history`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (statusRes.ok) {
@@ -400,7 +402,7 @@
         // 3. Fetch card from backend if local storage is completely empty
         if (!activeCard) {
           try {
-            const res = await fetch(`${baseUrl}/api/user/bank-card`, {
+            const res = await fetch(`https://backend-production-7c73b.up.railway.app/api/user/bank-card`, {
               headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
@@ -570,10 +572,10 @@
       const baseUrl = resolveBaseUrl();
 
       const endpoints = [
-        `${baseUrl}/api/withdraw/request`,
-        `${baseUrl}/api/withdraw/submit`,
-        `${baseUrl}/api/user/withdraw`,
-        `${baseUrl}/api/wallet/withdraw`
+        `https://backend-production-7c73b.up.railway.app/api/withdraw/request`,
+        `https://backend-production-7c73b.up.railway.app/api/withdraw/submit`,
+        `https://backend-production-7c73b.up.railway.app/api/user/withdraw`,
+        `https://backend-production-7c73b.up.railway.app/api/wallet/withdraw`
       ];
 
       let success = false;

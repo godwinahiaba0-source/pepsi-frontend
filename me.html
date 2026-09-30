@@ -541,7 +541,7 @@
       const baseUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://backend-production-7c73b.up.railway.app';
 
       try {
-        const res = await fetch(`${baseUrl}/api/user/update-avatar`, {
+        const res = await fetch(`https://backend-production-7c73b.up.railway.app/api/user/update-avatar`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -631,7 +631,7 @@
           }
         }
       } catch (err) {
-        console.warn("API offline or unreachable, serving local cache:", err);
+        console.warn("API offline or unreachable, serving local cache");
       }
     }
 
