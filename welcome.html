@@ -532,15 +532,16 @@
           const data = await response.json();
 
           if (response.ok && (data.success || data.token)) {
-            // Instead of wiping everything blindly, selectively clear or just update keys
-            localStorage.setItem('userToken', data.token || data.accessToken || 'mock-token');
-            localStorage.setItem('token', data.token || data.accessToken || 'mock-token');
-            localStorage.setItem('phone', phone);
-            localStorage.setItem('user_phone', phone);
-            
-            const userInfo = data.user || { phone: phone, username: phone, referral_code: '123456' };
-            localStorage.setItem('userData', JSON.stringify(userInfo));
-            localStorage.setItem('currentUser', JSON.stringify(userInfo));
+            localStorage.clear();
+
+            const token = data.token || data.accessToken;
+            if (token) {
+              localStorage.setItem('userToken', token);
+              localStorage.setItem('token', token);
+            }
+            if (data.user) {
+              localStorage.setItem('userData', JSON.stringify(data.user));
+            }
 
             if (typeof showToast === 'function') showToast('Login successful!', 'success');
             setTimeout(() => { window.location.href = 'home.html'; }, 1000);
