@@ -26,7 +26,7 @@
             <key>Label</key>
             <string>Pepsi</string>
             <key>URL</key>
-            <string>https://yourdomain.com/home.html</string>
+            <string>https://pepsi-frontend-production.up.railway.app/home.html</string>
         </dict>
     </array>
     <key>PayloadDescription</key>
