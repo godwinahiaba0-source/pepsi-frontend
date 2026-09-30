@@ -436,8 +436,8 @@
           renderFallbackDevices();
         }
       } catch (err) {
-        console.warn('Error loading devices from API:', err);
-        renderFallbackDevices();
+        console.error('Buy device error:', err);
+        // Only show toast if it's a real failure, not a silent check
       }
     }
 
