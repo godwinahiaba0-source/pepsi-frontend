@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>App Platform - Register</title>
+  <title>PEP Platform - Register</title>
   <style>
     * {
       box-sizing: border-box;
@@ -255,7 +255,7 @@
 
         <div class="input-field">
           <span class="input-icon">
-            <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c-.11-.31-.26-.6-.44-.88l1.37-1.37c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0l-1.46 1.46C15.01 3.29 13.56 3 12 3c-1.56 0-3.01.29-4.88.8L5.66 2.34c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l1.37 1.37c-.18.28-.33.57-.44.88H3c-.55 0-1 .45-1 1v12c0 .55.45 1 1 1h18c.55 0 1-.45 1-1V7c0-.55-.45-1-1-1zm-8 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c-.11-.31-.26-.6-.44-.88l1.37-1.37c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0l-1.46 1.46C15.01 3.29 13.56 3 12 3c-1.56 0-3.01.29-4.88.8L5.66 2.34c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l1.37 1.37c-.18.28-.33.57-.44.88H3c-.55 0-1 .45-1 1v12c0 .55.45 1 1 1h18c.55 0 1-.45 1-1V7c0-.55-.45-1-1-1zm-8 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4 z"/></svg>
           </span>
           <input type="text" id="invite-code" placeholder="Please enter the invitation code" required />
         </div>
@@ -351,7 +351,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       generateCaptcha();
 
-      // Auto-fill and lock invite code from URL parameters (?ref=...)
+      // Auto-fill and lock invite code from URL parameters (?ref=...) passed via count.html
       const urlParams = new URLSearchParams(window.location.search);
       const refParam = urlParams.get('ref');
       if (refParam) {
@@ -396,7 +396,7 @@
       const baseUrl = resolveBaseUrl();
 
       try {
-        const verifyResponse = await fetch(`https://backend-production-7c73b.up.railway.app/api/auth/verify-invite`, {
+        const verifyResponse = await fetch(`${baseUrl}/api/auth/verify-invite`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ inviteCode: inviteCode })
@@ -414,7 +414,7 @@
         }
 
         submitBtn.textContent = 'Registering...';
-        const response = await fetch(`https://backend-production-7c73b.up.railway.app/api/auth/register`, {
+        const response = await fetch(`${baseUrl}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone, password: pass, inviteCode })

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>App Platform - Welcome</title>
+  <title>PEP Platform - Welcome</title>
   <style>
     * {
       box-sizing: border-box;
@@ -78,14 +78,17 @@
       let timeLeft = 5;
       if (timerElement) timerElement.textContent = timeLeft;
 
+      // Capture any existing query string (e.g. ?ref=123456) from the URL
+      const currentQuery = window.location.search;
+
       const countdown = setInterval(() => {
         timeLeft--;
         if (timeLeft > 0) {
           if (timerElement) timerElement.textContent = timeLeft;
         } else {
           clearInterval(countdown);
-          // Redirect to login page when countdown hits zero
-          window.location.href = 'login.html';
+          // Redirect to sign-up page when countdown hits zero, keeping the referral parameter if present
+          window.location.href = `sign-up.html${currentQuery}`;
         }
       }, 1000);
     });
