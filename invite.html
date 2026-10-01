@@ -571,7 +571,7 @@
     </div>
   </div>
 
- <script src="config.js"></script>
+  <script src="config.js"></script>
   <script src="auth-guard.js"></script>
   <script src="toast.js"></script>
 
@@ -663,7 +663,8 @@
 
     function renderQRCodeAndLink(code) {
       document.getElementById('displayRefCode').innerText = code;
-      const baseDomain = window.location.origin + window.location.pathname.replace('invite.html', 'auth.html');
+      // ✅ Updated to direct referrals to welcome.html instead of auth.html
+      const baseDomain = window.location.origin + window.location.pathname.replace('invite.html', 'welcome.html');
       const fullReferralUrl = `${baseDomain}?ref=${code}`;
 
       document.getElementById('referralLink').value = fullReferralUrl;
@@ -792,3 +793,5 @@
       loadUserProfileAndTeam();
     });
   </script>
+</body>
+</html>
