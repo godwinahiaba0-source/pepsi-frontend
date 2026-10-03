@@ -7,12 +7,12 @@
   "theme_color": "#0047ab",
   "icons": [
     {
-      "src": "pepsi-logo.png",
+      "src": "welcm.jpg",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "pepsi-logo.png",
+      "src": "welcm.jpg",
       "sizes": "512x512",
       "type": "image/png"
     }
